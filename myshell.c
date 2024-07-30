@@ -67,16 +67,13 @@ void findRedirect(char *args[]) {               // リダイレクトの指示�
   args[j] = NULL;
 }
 
-void redirect(int fd, char *path, int flag) {   // リダイレクト処理をする
-  //
-  // externalCom 関数のどこかから呼び出される
-  //
-  // fd   : リダイレクトするファイルディスクリプタ
-  // path : リダイレクト先ファイル
-  // flag : open システムコールに渡すフラグ
-  //        入力の場合 O_RDONLY
-  //        出力の場合 O_WRONLY|O_TRUNC|O_CREAT
-  //
+void redirect(int fd, char *path, int flag) {   
+  close(fd);  
+  if ((fd = open(path, flag, 0644)) < 0) { 
+    perror(path);                              
+    exit(1);                                   
+  }
+                             
 }
 
 void externalCom(char *args[]) {                // 外部コマンドを実行する
@@ -85,7 +82,11 @@ void externalCom(char *args[]) {                // 外部コマンドを実行�
     perror("fork");                             //     fork 失敗
     exit(1);                                    //     非常事態，親を終了
   }
-  if (pid==0) {                                 //   子プロセスなら
+  if (pid==0) {  
+    if (ifile != NULL)     
+      redirect (0, ifile, O_RDONLY);  
+    if (ofile != NULL)     
+      redirect (1, ofile, O_WRONLY|O_TRUNC|O_CREAT);                        //   子プロセスなら
     execvp(args[0], args);                      //     コマンドを実行
     perror(args[0]);
     exit(1);
@@ -130,3 +131,50 @@ int main() {
   return 0;
 }
 
+"Results :
+i21yassine@Virtual-PC009:~/Syspro2/kadai12-i21yassin$ make
+cc -D_GNU_SOURCE -Wall -std=c99 -o myshell myshell.c
+i21yassine@Virtual-PC009:~/Syspro2/kadai12-i21yassin$ ./myshell
+Command: ls
+Makefile  README.md  README.pdf  myshell  myshell.c
+Command: echo aaa > a.txt 
+Command: ls
+Makefile  README.md  README.pdf  a.txt  myshell  myshell.c
+Command: cat a.txt
+aaa
+Command: ls > a.txt
+Command: cat a.txt
+Makefile
+README.md
+README.pdf
+a.txt
+myshell
+myshell.c
+Command: echo bbb > b1.txt b2.txt    
+Command: ls
+Makefile  README.md  README.pdf  a.txt  b1.txt  myshell  myshell.c
+Command: cat b1.txt
+bbb b2.txt
+Command: grep txt < a.txt
+a.txt
+Command: grep txt < a.txt txt 
+grep: txt: そのようなファイルやディレクトリはありません
+Command: grep b1 < b1.txt
+Command: cat b1.txt
+bbb b2.txt
+Command: cat < dir
+dir: No such file or directory
+Command: mkdir dir
+Command: cat < dir
+cat: -: ディレクトリです
+Command: ls > dir
+dir: Is a directory
+Command: ls > dir/a.txt
+Command: cat a.txt
+Makefile
+README.md
+README.pdf
+a.txt
+myshell
+myshell.c
+Command: "
