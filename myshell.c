@@ -131,3 +131,50 @@ int main() {
   return 0;
 }
 
+"Results :
+i21yassine@Virtual-PC009:~/Syspro2/kadai12-i21yassin$ make
+cc -D_GNU_SOURCE -Wall -std=c99 -o myshell myshell.c
+i21yassine@Virtual-PC009:~/Syspro2/kadai12-i21yassin$ ./myshell
+Command: ls
+Makefile  README.md  README.pdf  myshell  myshell.c
+Command: echo aaa > a.txt 
+Command: ls
+Makefile  README.md  README.pdf  a.txt  myshell  myshell.c
+Command: cat a.txt
+aaa
+Command: ls > a.txt
+Command: cat a.txt
+Makefile
+README.md
+README.pdf
+a.txt
+myshell
+myshell.c
+Command: echo bbb > b1.txt b2.txt    
+Command: ls
+Makefile  README.md  README.pdf  a.txt  b1.txt  myshell  myshell.c
+Command: cat b1.txt
+bbb b2.txt
+Command: grep txt < a.txt
+a.txt
+Command: grep txt < a.txt txt 
+grep: txt: そのようなファイルやディレクトリはありません
+Command: grep b1 < b1.txt
+Command: cat b1.txt
+bbb b2.txt
+Command: cat < dir
+dir: No such file or directory
+Command: mkdir dir
+Command: cat < dir
+cat: -: ディレクトリです
+Command: ls > dir
+dir: Is a directory
+Command: ls > dir/a.txt
+Command: cat a.txt
+Makefile
+README.md
+README.pdf
+a.txt
+myshell
+myshell.c
+Command: "
